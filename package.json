@@ -5,6 +5,7 @@
     "express": "^4.13.3",
     "oauth": "0.9.12",
     "jsonfile": "~2.2.3",
-    "promise": "7.0.4"
+    "promise": "7.0.4",
+    "mongoose": "~4.4.5"
   }
 }
