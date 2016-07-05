@@ -1,0 +1,24 @@
+{
+	"stades": [
+		{	
+			"name": "Lens: Stade Bollaert-Delelis",
+			"lat": 50.432864,
+			"lng": 2.814985
+		},
+		{	
+			"name": "Lyon: Parc Olympique Lyonnais",
+			"lat": 45.765007, 
+			"lng": 4.982038
+		},
+		{	
+			"name" : "Saint-Denis: Stade de France",
+			"lat": 48.925962,
+			"lng": 2.358993
+		},
+		{
+			"name": "Marsella:Nouveau Stade Vélodrome",
+			"lat": 43.269764, 
+			"lng": 5.394246
+		}
+	]
+}

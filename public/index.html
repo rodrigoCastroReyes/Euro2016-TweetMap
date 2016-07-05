@@ -3,6 +3,7 @@
   <head>
     <meta charset="utf-8">
     <title>Heatmaps</title>
+    <script type="text/javascript" src="lib/jquery-1.11.3.min.js" ></script>
     <style>
       html, body {
         height: 100%;
@@ -46,12 +47,13 @@
 
         function initMap() {
           map = new google.maps.Map(document.getElementById('map'), {
-            zoom: 7,
+            zoom: 2,
             center: {lat: 47.386965, lng: 3.340445},
-            mapTypeId: google.maps.MapTypeId.SATELLITE,
             dissipating:true
           });
-          getPoints();
+          getPointsFromDB();
+          //$.getJSON('/stades.json',addStades);
+          //getPoints();
         }
 
         function toggleHeatmap() {
@@ -79,11 +81,33 @@
         }
 
         function changeRadius() {
-          heatmap.set('radius',10);
+          heatmap.set('radius',7);
         }
 
         function changeOpacity() {
           heatmap.set('opacity', heatmap.get('opacity') ? null : 0.2);
+        }
+
+        function addStades(response){
+          console.log("obtener estados")
+          var stades = response.stades;
+          console.log(response);
+          var marker
+          for(var i in stades){
+            var location = new google.maps.LatLng(stades[i].lat,stades[i].lng);
+            marker = new google.maps.Marker({
+              position: location,
+              title: stades[i].name,
+              map: map
+            })
+            google.maps.event.addListener(marker , 'click', function(){
+              var infowindow = new google.maps.InfoWindow({
+                content: marker.title,
+                position: marker.position,
+              });
+              infowindow.open(map);
+            });
+          }
         }
 
         function getPoints(){
@@ -92,22 +116,63 @@
                 var tweets = [];
                 for(var i in response){
                   var location = response[i];
-                  tweets.push(new google.maps.LatLng(location.lat,location.lng));
+                 
+                  tweets.push(new google.maps.LatLng(location.lat,location.lng))
                 }
                 heatmap = new google.maps.visualization.HeatmapLayer({
                     data: tweets,
                     map: map,
-                    maxIntensity:100
+                    maxIntensity: 25
                 });
                 changeRadius();
-                changeGradient();
+                //changeGradient();
             }
             $.ajax({ url:'/getTweets', type:  'get', success: callback });
+        }
+
+        function getPointsFromDB(){
+          var tweets = [];
+          
+          var callback = function(response){
+            var docs = response.tweets;
+            var new_page = response.page;
+            if(docs.length>0){
+              for(var i in docs){
+                var location = docs[i];
+                tweets.push(new google.maps.LatLng(location.lat,location.lng))
+              }
+            }
+            if (new_page != -1){
+              $.ajax({ 
+                url:'/getTweetsPerPage/' + new_page, 
+                type:  'get', 
+                success: callback 
+              });
+            }else{
+              console.log("empieza animacion");
+              console.log(tweets.length)
+              heatmap = new google.maps.visualization.HeatmapLayer({    
+                data: tweets,
+                map: map,
+                maxIntensity: 25
+              });
+              changeRadius();
+              return;
+            }
+          }
+
+          var page = 1;
+
+          $.ajax({
+            url:'/getTweetsPerPage/' + page, 
+            type:  'get', 
+            success: callback 
+          });
         }
     </script>
     <script async defer
         src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC3GG1bWOb8u2eCEteiCY1yGnaKrqgW6R4&signed_in=true&libraries=visualization&callback=initMap">
     </script>
-    <script type="text/javascript" src="lib/jquery-1.11.3.min.js" ></script>
+    
   </body>
 </html>
